@@ -1,5 +1,3 @@
----
-
 # 🦢 ViT-Based Image Anomaly Detection on Azure Databricks
 
 End-to-end computer vision anomaly detection pipeline built using:
