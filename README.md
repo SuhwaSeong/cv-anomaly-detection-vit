@@ -40,22 +40,22 @@ The focus extends beyond model accuracy to:
 ```mermaid
 flowchart LR
 
-    subgraph Local_Environment
+    subgraph Local
         A[Raw Swan Video]
-        B[Frame Extraction<br/>frames.py]
-        C[Anomaly Generation<br/>salt_pepper_noise.py]
-        D[Labeling<br/>label.py]
+        B[Frame Extraction - frames.py]
+        C[Anomaly Generation - salt_pepper_noise.py]
+        D[Labeling - label.py]
     end
 
-    subgraph Azure_Cloud
+    subgraph Azure
         E[Azure Data Lake]
         F[Databricks Mount]
-        G[Spark ETL<br/>01_Ingestion_ETL.py]
-        H[Distributed Augmentation<br/>02_Augmentation.py]
-        I[ViT Fine-Tuning<br/>03_hf_deep_learning.py]
+        G[Spark ETL - 01_Ingestion_ETL.py]
+        H[Distributed Augmentation - 02_Augmentation.py]
+        I[ViT Fine-Tuning - 03_hf_deep_learning.py]
         J[MLflow Tracking]
         K[Azure Databricks Model Serving]
-        L[REST Endpoint Invocation<br/>05_model_serving.py]
+        L[REST Endpoint - 05_model_serving.py]
         M[Softmax]
         N[Anomaly Score]
     end
@@ -64,8 +64,8 @@ flowchart LR
     E --> F --> G --> H --> I
     I --> J
     I --> K --> L --> M --> N
-```
 
+```
 ---
 
 # 🧰 Technology Stack
