@@ -1,4 +1,4 @@
-🦢 Cloud-Deployed ViT for Image Anomaly Scoring on Azure Databricks
+# 🦢 Cloud-Deployed ViT for Image Anomaly Scoring on Azure Databricks
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-DeepLearning-red)
@@ -8,16 +8,36 @@
 ![MLflow](https://img.shields.io/badge/MLflow-Tracking-blue)
 ![Serving](https://img.shields.io/badge/Serving-Databricks_Model_Serving-green)
 
-End-to-end cloud-native computer vision pipeline for anomaly scoring using Vision Transformer (ViT), built and deployed on Azure Databricks with MLflow lifecycle management.
+End-to-end cloud-native computer vision pipeline for probabilistic anomaly scoring using Vision Transformer (ViT), built and deployed on Azure Databricks with MLflow lifecycle management.
 
-This project demonstrates full ML engineering capability:
+This project demonstrates production-oriented ML engineering:
 
-- Local data generation
-- Distributed Spark image processing
-- MLflow experiment tracking
-- Model registry versioning
-- Managed model serving
-- Production-style inference validation
+* Local synthetic dataset design
+* Distributed Spark-based image ETL
+* Delta-backed dataset lineage
+* Transfer learning with HuggingFace + PyTorch
+* MLflow experiment tracking
+* Model registry versioning
+* Managed model serving
+* REST-based inference validation
+* Post-training probabilistic separation verification
+
+---
+
+# Executive Summary
+
+A Vision Transformer was fine-tuned to distinguish normal swan frames from synthetically generated structural anomalies.
+
+The entire pipeline was engineered and validated inside Azure Databricks:
+
+* Distributed preprocessing using Spark
+* Version-controlled dataset storage via Delta tables
+* MLflow lifecycle tracking
+* Model registry publishing
+* Managed serving endpoint deployment
+* Softmax-based anomaly scoring validation
+
+Final validation showed complete probabilistic separation between normal and abnormal samples, confirming system-level correctness beyond standard accuracy metrics.
 
 ---
 
@@ -25,22 +45,24 @@ This project demonstrates full ML engineering capability:
 
 Binary image classification used for anomaly scoring.
 
-Class definition (strictly aligned with training code):
-
-| Class | Meaning |
-|-------|---------|
+| Class | Meaning                      |
+| ----- | ---------------------------- |
 | 0     | Abnormal (synthetic anomaly) |
-| 1     | Normal (swan frame) |
+| 1     | Normal (swan frame)          |
 
 Anomaly score definition:
 
 ```
-
 anomaly_score = P(class = 0 | image)
+```
 
-````
+Derived from:
 
-This score is derived from softmax(logits).
+```
+softmax(logits)
+```
+
+The system outputs calibrated probabilities instead of hard labels, enabling threshold-based production deployment.
 
 ---
 
@@ -67,7 +89,7 @@ flowchart LR
     A --> B --> C --> D --> E
     E --> F --> G --> H --> I
     I --> J --> K --> L --> M --> N --> O
-````
+```
 
 ---
 
@@ -90,31 +112,8 @@ flowchart LR
 ```
 cv-anomaly-detection-vit/
 ├── databricks_pipeline/
-│   ├── 00_utils.py
-│   ├── 01_Ingestion_ETL.py
-│   ├── 02_Augmentation.py
-│   ├── 03_hf_deep_learning.py
-│   ├── 04_model_deployment.py
-│   └── 05_model_serving.py
-│
 ├── local_preprocessing/
-│   ├── frames.py
-│   ├── salt_pepper_noise.py
-│   ├── label.py
-│   └── llm.py
-│
 ├── assets/
-│   ├── 01_mlflow_experiments_overview.png
-│   ├── 02_mlflow_experiments_artifacts.png
-│   ├── 03_training_metrics.png
-│   ├── 04_training_metrics.png
-│   ├── 05_training_metrics.png
-│   ├── 06_model_registry_version.png
-│   ├── 07_serving_endpoint.png
-│   ├── 08_serving_endpoint_wrapped.png
-│   ├── 09_production_validation_results.png
-│   └── 10_production_validation_results.png
-│
 └── README.md
 ```
 
@@ -126,14 +125,21 @@ Synthetic anomaly strategy:
 
 * Irregular polygon noise patches
 * High-contrast salt and pepper artifacts
-* Multi-region disturbance
-* Controlled anomaly ratio
+* Multi-region structural disturbance
+* Controlled anomaly ratio (800 normal : 200 abnormal)
+
+### Design Intent
+
+Anomalies were deliberately made visually distinguishable.
 
 Purpose:
 
-* Create clear structural deviation
-* Validate softmax-based anomaly scoring
-* Test deployment reliability
+* Validate model learning under controlled conditions
+* Ensure clear probabilistic separation
+* Stress-test deployment inference behavior
+* Confirm training-serving consistency
+
+This project focuses on system validation rather than subtle anomaly benchmarking.
 
 ---
 
@@ -143,11 +149,17 @@ Implemented:
 
 * Image listing + label join
 * Center-biased cropping
-* Resize to model resolution
-* Binary JPEG serialization
+* Resize to 224×224
+* JPEG binary serialization
 * Distributed augmentation with pandas UDF
+* Delta table persistence
 
-This ensures reproducible dataset generation inside Azure.
+Benefits:
+
+* Reproducibility
+* Scalability
+* Cloud-native consistency
+* Dataset lineage tracking
 
 ---
 
@@ -161,11 +173,13 @@ google/vit-base-patch16-224
 
 Training setup:
 
-* Binary classification
+* Transfer learning
+* Custom classifier head
 * Early stopping
+* F1-based evaluation
 * MLflow metric logging
-* Confusion matrix evaluation
 * Model artifact logging
+* Model signature inference
 * MLflow Model Registry versioning
 
 ---
@@ -189,14 +203,12 @@ Training setup:
 Observed:
 
 * Stable convergence
-* Clear separation between classes
+* Clear class signal
 * Consistent validation performance
 
 ---
 
 # 🔹 Model Registry
-
-Registered model version:
 
 ![](assets/06_model_registry_version.png)
 
@@ -204,19 +216,19 @@ Demonstrates:
 
 * Version-controlled deployment
 * Artifact reproducibility
-* Production-ready packaging
+* Production readiness
 
 ---
 
 # 🔹 Deployment (Databricks Model Serving)
 
-Endpoint created inside Azure Databricks.
+Managed endpoint inside Azure Databricks:
 
-![](assets/07_serving_endpoint.png)
+![](assets/07_serving_endpoint_swan-anomaly-inference.png)
 
-Logits-only wrapped model to ensure serving schema stability.
+Logits-only wrapper ensures schema stability:
 
-![](assets/08_serving_endpoint_wrapped.png)
+![](assets/08_serving_endpoint_swan-anomaly-inference-wrapped.png)
 
 REST Invocation Path:
 
@@ -248,7 +260,6 @@ Example:
 ```
 logits: [-2.17, 3.16]
 probabilities: [0.0047, 0.9953]
-predicted_class: 1 (normal)
 anomaly_score: 0.0047
 ```
 
@@ -258,20 +269,77 @@ anomaly_score: 0.0047
 
 ![](assets/09_production_validation_results.png)
 ![](assets/10_production_validation_results.png)
+![](assets/11_Post-Training_Probabilistic_Separation_Validation.png)
 
-Observed:
+Batch validation results:
 
-Normal samples:
+Normal:
 
-* Low anomaly_score
-* Stable softmax distribution
+* mean anomaly_score ≈ 0.018
+* max anomaly_score ≈ 0.176
 
-Abnormal samples:
+Abnormal:
 
-* High anomaly_score
-* Clear separation
+* mean anomaly_score ≈ 0.999
+* min anomaly_score ≈ 0.948
 
-Confirms deployment correctness and scoring stability.
+No probability overlap observed.
+
+Implications:
+
+* Strong probabilistic separation
+* Low false positive risk
+* Low false negative risk
+* Training-serving equivalence confirmed
+* Softmax-based scoring stable in deployment
+
+---
+
+# 🔍 Key Design Decisions
+
+### Probabilistic Scoring
+
+Using softmax probabilities enables:
+
+* Adjustable threshold policies
+* Risk-sensitive deployment
+* Drift monitoring compatibility
+
+### Logits-Only Serving Wrapper
+
+Ensures:
+
+* Deterministic API schema
+* Framework-agnostic output format
+* Serving stability across environments
+
+### Distributed Spark ETL
+
+Prevents:
+
+* Local preprocessing bottlenecks
+* Non-reproducible data pipelines
+
+Supports:
+
+* Scalable production workflows
+
+### Post-Training Probability Analysis
+
+Beyond accuracy metrics, distribution-level validation was performed to verify system-level integrity.
+
+---
+
+# 🏭 Industrial Applicability
+
+This architecture directly applies to:
+
+Manufacturing quality inspection
+Infrastructure damage detection
+Medical imaging triage
+Security anomaly monitoring
+
+The probabilistic anomaly_score supports domain-specific threshold calibration.
 
 ---
 
@@ -279,20 +347,23 @@ Confirms deployment correctness and scoring stability.
 
 * No PAT tokens committed
 * No SAS keys stored
-* Secrets managed via environment variables or Databricks Secrets
+* Environment-based secret management
+* Databricks Secret Scope usage
 
 ---
 
 # 🚀 Engineering Highlights
 
-* Spark-based distributed image ETL
-* pandas UDF vectorized transformations
-* MLflow lifecycle tracking
+* Distributed Spark ETL
+* Vectorized pandas UDF transformations
+* Delta dataset lineage
+* Transfer learning with ViT
+* MLflow lifecycle governance
 * Versioned model registry
 * Managed Azure serving
-* REST inference validation
-* Logits-only deployment-safe model wrapping
-* Production-level anomaly scoring pipeline
+* REST-based inference validation
+* Probability-based anomaly scoring
+* System-level validation analysis
 
 ---
 
@@ -308,5 +379,6 @@ Focus:
 * ML Engineering
 * MLOps
 * Cloud-native ML Systems
+* Production Deployment
 
-```
+---
