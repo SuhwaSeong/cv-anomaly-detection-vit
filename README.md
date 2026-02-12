@@ -26,7 +26,7 @@ This project demonstrates production-oriented ML engineering:
 
 # Executive Summary
 
-A Vision Transformer was fine-tuned to distinguish normal swan frames from synthetically generated structural anomalies.
+This project implements a probabilistic anomaly scoring pipeline using a fine-tuned Vision Transformer within Azure Databricks.
 
 The entire pipeline was engineered and validated inside Azure Databricks:
 
@@ -37,7 +37,7 @@ The entire pipeline was engineered and validated inside Azure Databricks:
 * Managed serving endpoint deployment
 * Softmax-based anomaly scoring validation
 
-Final validation showed complete probabilistic separation between normal and abnormal samples, confirming system-level correctness beyond standard accuracy metrics.
+Final validation demonstrated clear probabilistic separation between normal and abnormal samples within the evaluated batches, confirming consistent system behavior beyond standard accuracy metrics.
 
 ---
 
@@ -127,6 +127,8 @@ Synthetic anomaly strategy:
 * High-contrast salt and pepper artifacts
 * Multi-region structural disturbance
 * Controlled anomaly ratio (800 normal : 200 abnormal)
+
+Frame extraction and structured anomaly synthesis were executed locally using custom Python scripts (frames.py, salt_pepper_noise.py, label.py, llm.py). The generated dataset was then uploaded to Azure Data Lake and ingested into the cloud-based processing pipeline for distributed ETL and training.
 
 ### Design Intent
 
@@ -283,7 +285,7 @@ Abnormal:
 * mean anomaly_score ≈ 0.999
 * min anomaly_score ≈ 0.948
 
-No probability overlap observed.
+No probability overlap was observed within the sampled validation batches.
 
 Implications:
 
@@ -332,14 +334,14 @@ Beyond accuracy metrics, distribution-level validation was performed to verify s
 
 # 🏭 Industrial Applicability
 
+The probabilistic anomaly_score enables threshold tuning based on operational risk tolerance in real-world systems, supporting domain-specific calibration strategies.
+
 This architecture directly applies to:
 
 Manufacturing quality inspection
 Infrastructure damage detection
 Medical imaging triage
 Security anomaly monitoring
-
-The probabilistic anomaly_score supports domain-specific threshold calibration.
 
 ---
 
