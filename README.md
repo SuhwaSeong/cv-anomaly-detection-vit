@@ -1,4 +1,4 @@
-🦢 Cloud-Deployed ViT for Image Anomaly Scoring on Azure Databricks
+## 🦢 Cloud-Deployed ViT for Image Anomaly Scoring on Azure Databricks
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-DeepLearning-red)
