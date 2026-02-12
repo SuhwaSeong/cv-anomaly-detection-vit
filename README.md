@@ -26,7 +26,7 @@ This project demonstrates production-oriented ML engineering:
 
 # Executive Summary
 
-This project implements a probabilistic anomaly scoring pipeline using a fine-tuned Vision Transformer within Azure Databricks.
+The dataset was derived from a single 18-second swan video. Frames were extracted locally and augmented with synthetic structural anomalies to construct a controlled anomaly detection setup. The dataset was intentionally kept small to validate the full ML pipeline from data generation to deployment rather than to benchmark large-scale anomaly detection performance.
 
 The entire pipeline was engineered and validated inside Azure Databricks:
 
