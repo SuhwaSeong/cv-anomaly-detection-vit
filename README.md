@@ -1,4 +1,4 @@
-# 🦢 Cloud-Deployed Vision Transformer for Image Anomaly Classification on Microsoft Azure Databricks
+# 🦢 Cloud-Deployed Vision Transformer for Image Anomaly Detection on Azure Databricks
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue)
 ![PyTorch](https://img.shields.io/badge/PyTorch-DeepLearning-red)
