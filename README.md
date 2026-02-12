@@ -8,7 +8,7 @@
 ![MLflow](https://img.shields.io/badge/MLflow-ExperimentTracking-blue)
 ![Deployment](https://img.shields.io/badge/Deployment-Azure_Databricks_Model_Serving-green)
 
-End-to-end computer vision anomaly detection pipeline built using **Azure Databricks** and **Vision Transformer (ViT)**.
+End-to-end deep learning pipeline for image anomaly detection built using Azure Databricks and Vision Transformer (ViT)**.
 
 This repository demonstrates a cloud-native machine learning workflow from raw video frame extraction to **managed Azure model serving and production-level anomaly scoring**.
 
@@ -121,8 +121,8 @@ The synthetic anomalies:
 
 The purpose was not to simulate imperceptible noise, but to:
 
-* Establish a clear binary decision boundary
-* Validate classification stability
+* Establish a clear decision boundary
+* Validate detection stability
 * Ensure softmax-based anomaly scoring behaves reliably
 * Create controlled learning behavior for deployment testing
 
@@ -226,7 +226,7 @@ No external API framework is used. All serving is handled inside Azure Databrick
 
 # 📊 Production Validation Results
 
-The trained model was deployed via **Azure Databricks Model Serving** and validated through live REST endpoint invocation.
+The serving endpoint returned consistent predictions with correct tensor schema handling, confirming stable and production-ready anomaly detection behavior under managed Azure serving.
 
 ### Example Endpoint Output
 
