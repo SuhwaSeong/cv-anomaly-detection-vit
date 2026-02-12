@@ -8,9 +8,9 @@
 ![MLflow](https://img.shields.io/badge/MLflow-ExperimentTracking-blue)
 ![Deployment](https://img.shields.io/badge/Deployment-Azure_Databricks_Model_Serving-green)
 
-End-to-end computer vision anomaly detection pipeline built using Azure Databricks and Vision Transformer (ViT).
+End-to-end computer vision anomaly detection pipeline built using **Azure Databricks** and **Vision Transformer (ViT)**.
 
-This repository demonstrates a cloud-native ML workflow from raw video frame extraction to Azure-based model serving and anomaly scoring.
+This repository demonstrates a cloud-native machine learning workflow from raw video frame extraction to **managed Azure model serving and production-level anomaly scoring**.
 
 ---
 
@@ -19,7 +19,7 @@ This repository demonstrates a cloud-native ML workflow from raw video frame ext
 The objective of this project was to design and implement a reproducible anomaly detection system with the following stages:
 
 1. Extract frames from a single swan video
-2. Generate synthetic anomaly samples
+2. Generate clearly distinguishable synthetic anomaly samples
 3. Construct a structured and balanced dataset
 4. Fine-tune a Vision Transformer (ViT)
 5. Track experiments using MLflow
@@ -28,10 +28,10 @@ The objective of this project was to design and implement a reproducible anomaly
 The focus extends beyond model accuracy to:
 
 * Cloud-based data engineering
-* Distributed image processing
+* Distributed image processing with Spark
 * Secure credential management
 * Model lifecycle management
-* Deployment readiness in a managed cloud environment
+* Deployment validation in a managed Azure environment
 
 ---
 
@@ -43,7 +43,7 @@ flowchart LR
     subgraph Local
         A[Raw Swan Video]
         B[Frame Extraction - frames.py]
-        C[Anomaly Generation - salt_pepper_noise.py]
+        C[Explicit Synthetic Anomaly Generation - salt_pepper_noise.py]
         D[Labeling - label.py]
     end
 
@@ -54,32 +54,32 @@ flowchart LR
         H[Distributed Augmentation - 02_Augmentation.py]
         I[ViT Fine-Tuning - 03_hf_deep_learning.py]
         J[MLflow Tracking]
-        K[Azure Databricks Model Serving]
-        L[REST Endpoint - 05_model_serving.py]
-        M[Softmax]
-        N[Anomaly Score]
+        K[Model Registry]
+        L[Azure Databricks Model Serving]
+        M[REST Endpoint Invocation - 05_model_serving.py]
+        N[Softmax]
+        O[Anomaly Score]
     end
 
     A --> B --> C --> D --> E
     E --> F --> G --> H --> I
-    I --> J
-    I --> K --> L --> M --> N
-
+    I --> J --> K --> L --> M --> N --> O
 ```
+
 ---
 
 # 🧰 Technology Stack
 
-| Category            | Tools                                          |
-| ------------------- | ---------------------------------------------- |
-| Programming         | Python                                         |
-| Deep Learning       | PyTorch, HuggingFace Transformers              |
-| Model               | Vision Transformer (ViT)                       |
-| Data Processing     | Apache Spark, pandas UDF                       |
-| Cloud Storage       | Azure Data Lake                                |
-| Cloud Compute       | Azure Databricks                               |
-| Experiment Tracking | MLflow                                         |
-| Deployment          | Azure Databricks Model Serving + REST Endpoint |
+| Category            | Tools                             |
+| ------------------- | --------------------------------- |
+| Programming         | Python                            |
+| Deep Learning       | PyTorch, HuggingFace Transformers |
+| Model               | Vision Transformer (ViT)          |
+| Data Processing     | Apache Spark, pandas UDF          |
+| Cloud Storage       | Azure Data Lake                   |
+| Cloud Compute       | Azure Databricks                  |
+| Experiment Tracking | MLflow                            |
+| Deployment          | Azure Databricks Model Serving    |
 
 ---
 
@@ -110,22 +110,23 @@ cv-anomaly-detection-vit/
 
 # 🔹 Synthetic Anomaly Design Strategy
 
-Unlike subtle noise injection, anomaly samples were intentionally designed to be visually distinguishable.
+Unlike subtle perturbation-based anomaly simulation, anomaly samples in this project were intentionally designed to be **visually explicit and structurally abnormal**.
 
 The synthetic anomalies:
 
 * Use irregular polygon-shaped patches
 * Introduce strong salt-and-pepper contrast
-* Are clearly identifiable by human observation
-* Create structural deviations from normal samples
+* Are clearly distinguishable by human inspection
+* Create significant structural deviation from normal frames
 
-The objective was not to simulate imperceptible perturbations, but to construct explicitly abnormal patterns to validate:
+The purpose was not to simulate imperceptible noise, but to:
 
-* Binary classification stability
-* Clear decision boundary formation
-* Softmax-based anomaly scoring reliability
+* Establish a clear binary decision boundary
+* Validate classification stability
+* Ensure softmax-based anomaly scoring behaves reliably
+* Create controlled learning behavior for deployment testing
 
-This design ensures controlled learning behavior and stable deployment validation.
+This approach supports stable production validation under managed serving.
 
 ---
 
@@ -133,23 +134,24 @@ This design ensures controlled learning behavior and stable deployment validatio
 
 ## frames.py
 
-Extracts individual frames from the raw video source.
+Extracts individual image frames from the raw swan video.
 
 ## salt_pepper_noise.py
 
-Implements irregular polygon-based anomaly synthesis with:
+Implements explicit anomaly synthesis with:
 
 * Adjustable noise ratio
 * Salt vs pepper contrast control
+* Irregular polygon masking
 * Multi-patch random generation
 
 ## label.py
 
-Creates structured labels for normal vs abnormal classes.
+Generates structured labels for normal vs abnormal classes.
 
 ## llm.py
 
-Optional experimental LLM-assisted labeling module.
+Optional experimental LLM-assisted metadata or labeling support.
 
 ---
 
@@ -160,19 +162,27 @@ Optional experimental LLM-assisted labeling module.
 Spark-based ingestion pipeline:
 
 * Load images from Azure Data Lake
-* Join label metadata
+* Join with label metadata
 * Crop and resize
 * Convert to binary JPEG
 * Save structured Parquet dataset
 
+Ensures reproducible dataset construction.
+
+---
+
 ## 02_Augmentation.py
 
-Distributed augmentation via pandas UDF:
+Distributed augmentation using pandas UDF:
 
-* Flips
+* Horizontal / vertical flips
 * Rotations
-* Affine transforms
-* Polygon-based synthetic anomalies
+* Affine transformations
+* Additional polygon-based anomaly generation
+
+Enables scalable dataset balancing.
+
+---
 
 ## 03_hf_deep_learning.py
 
@@ -184,52 +194,64 @@ Model:
 google/vit-base-patch16-224
 ```
 
-Training:
+Training setup:
 
-* Input: 224 × 224 RGB
+* Input shape: 224 × 224 RGB
 * Binary classification
 * Early stopping
-* MLflow tracking
+* MLflow experiment tracking
 * Model artifact logging
+* Model registration in MLflow Registry
 
 ---
 
 ## 05_model_serving.py
 
-Azure-based deployment validation:
+Deployment validation logic:
 
 * Invoke Azure Databricks Model Serving endpoint
 * Receive raw logits
 * Apply softmax transformation
-* Compute anomaly score
+* Compute anomaly probability
 
 Anomaly Score definition:
 
 ```
-P(class = abnormal)
+Anomaly Score = P(class = abnormal)
 ```
 
-This confirms consistent model behavior under managed serving conditions.
+No external API framework is used. All serving is handled inside Azure Databricks.
 
 ---
 
-# 📊 Results
+# 📊 Production Validation Results
 
-### Model Configuration
+The trained model was deployed via **Azure Databricks Model Serving** and validated through live REST endpoint invocation.
 
-* Architecture: Vision Transformer (ViT)
-* Epochs: 5
-* Learning rate: 2e-5
-* Weight decay: 0.01
-* Early stopping enabled
+### Example Endpoint Output
 
-### Inference Behavior (Normal Samples)
+```
+logits: [-2.1770842, 3.1696875]
+probabilities: [0.0047, 0.9953]
+predicted_class: 1
+confidence: 0.9953
+```
 
-* Average anomaly score ≈ 0.00024
-* Maximum anomaly score < 0.01
-* Stable probability distribution
+### Observed Behavior
 
-The deployed model consistently assigns low anomaly probabilities to normal images, demonstrating stable inference behavior in Azure serving environment.
+**Normal samples**
+
+* Low anomaly probabilities
+* Stable softmax distributions
+* High confidence
+
+**Synthetic anomaly samples**
+
+* High anomaly probability
+* Clear separation from normal class
+* Stable endpoint behavior
+
+The serving endpoint returned consistent predictions with correct tensor schema handling, confirming production-level inference reliability.
 
 ---
 
@@ -237,9 +259,9 @@ The deployed model consistently assigns low anomaly probabilities to normal imag
 
 * No Azure SAS tokens stored in repository
 * No Databricks personal access tokens hardcoded
-* Authentication handled via environment variables or Databricks Secrets
+* Credentials managed via environment variables or Databricks Secrets
 
-This repository follows secure credential management practices aligned with cloud deployment standards.
+This project follows secure cloud deployment practices.
 
 ---
 
@@ -247,22 +269,23 @@ This repository follows secure credential management practices aligned with clou
 
 The model is deployed using:
 
-* MLflow model registration
+* MLflow Model Registration
 * Azure Databricks Model Serving
 * Managed REST endpoint invocation
 
-No external API framework is used, as serving and inference are handled entirely within Azure Databricks environment.
+Serving and inference are fully managed within Azure Databricks.
 
 ---
 
 # 💡 Engineering Highlights
 
-* Distributed image processing with Spark
-* Vectorized image transformation via pandas UDF
-* MLflow experiment lifecycle tracking
-* Azure-native model serving
+* Distributed image processing using Spark
+* Vectorized image transformations via pandas UDF
+* MLflow-based experiment lifecycle tracking
+* Managed Azure model serving
 * REST-based inference validation
-* Secure cloud credential management
+* Secure credential management
+* Explicit anomaly design for boundary validation
 
 ---
 
@@ -277,7 +300,7 @@ Focus areas:
 * Computer Vision
 * ML Engineering
 * Cloud-based ML Systems
-* Deployment & MLOps
+* Model Deployment & MLOps
 
 ---
 
@@ -286,9 +309,10 @@ Focus areas:
 This project demonstrates:
 
 * End-to-end ML engineering capability
-* Cloud-based data processing
+* Cloud-native data processing
 * Experiment tracking and model lifecycle management
-* Managed cloud deployment experience
+* Managed Azure model deployment experience
 * Secure and reproducible ML workflow design
+* Production-level inference validation
 
 ---
