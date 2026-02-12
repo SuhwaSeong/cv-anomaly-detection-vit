@@ -68,28 +68,28 @@ The system outputs calibrated probabilities instead of hard labels, enabling thr
 
 # 🏗 System Architecture
 
-```mermaid
-flowchart LR
-    A[Raw Swan Video]
-    B[Frame Extraction]
-    C[Synthetic Anomaly Generation]
-    D[Label Construction]
-    E[Azure Data Lake]
-    F[Databricks Mount]
-    G[Spark ETL]
-    H[Distributed Augmentation]
-    I[ViT Fine-Tuning]
-    J[MLflow Tracking]
-    K[Model Registry]
-    L[Databricks Model Serving]
-    M[REST Invocation]
-    N[Softmax]
-    O[Anomaly Score]
+![](assets/architecture_diagram.png)
 
-    A --> B --> C --> D --> E
-    E --> F --> G --> H --> I
-    I --> J --> K --> L --> M --> N --> O
-```
+End-to-End Flow
+
+Local video
+→ Frame extraction
+→ Synthetic anomaly generation
+→ Upload to Azure Data Lake
+→ Spark ETL + distributed augmentation
+→ ViT fine-tuning
+→ MLflow tracking and registry
+→ Databricks Model Serving
+→ REST inference
+→ Softmax
+→ anomaly_score = P(abnormal | image)
+
+The architecture separates concerns across:
+
+1. Data Engineering Layer
+2. Model Training Layer
+3. MLOps Governance Layer
+4. Production Inference Layer
 
 ---
 
