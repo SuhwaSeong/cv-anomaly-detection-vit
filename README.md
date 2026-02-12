@@ -6,11 +6,11 @@
 ![Azure](https://img.shields.io/badge/Azure-Cloud-blue)
 ![Databricks](https://img.shields.io/badge/Databricks-Spark-orange)
 ![MLflow](https://img.shields.io/badge/MLflow-ExperimentTracking-blue)
-![License](https://img.shields.io/badge/Status-Portfolio_Project-lightgrey)
+![Deployment](https://img.shields.io/badge/Deployment-Azure_Databricks_Model_Serving-green)
 
 End-to-end computer vision anomaly detection pipeline built using Azure Databricks and Vision Transformer (ViT).
 
-This repository demonstrates a cloud-native ML workflow from raw video frame extraction to deployment-ready anomaly scoring.
+This repository demonstrates a cloud-native ML workflow from raw video frame extraction to Azure-based model serving and anomaly scoring.
 
 ---
 
@@ -23,15 +23,15 @@ The objective of this project was to design and implement a reproducible anomaly
 3. Construct a structured and balanced dataset
 4. Fine-tune a Vision Transformer (ViT)
 5. Track experiments using MLflow
-6. Validate deployment behavior via inference logic
+6. Deploy and validate inference using Azure Databricks Model Serving
 
 The focus extends beyond model accuracy to:
 
 * Cloud-based data engineering
 * Distributed image processing
 * Secure credential management
-* Deployment readiness
-* Reproducible ML system design
+* Model lifecycle management
+* Deployment readiness in a managed cloud environment
 
 ---
 
@@ -43,7 +43,7 @@ flowchart LR
     subgraph Local_Environment
         A[Raw Swan Video]
         B[Frame Extraction<br/>frames.py]
-        C[Noise Generation<br/>salt_pepper_noise.py]
+        C[Anomaly Generation<br/>salt_pepper_noise.py]
         D[Labeling<br/>label.py]
     end
 
@@ -54,32 +54,32 @@ flowchart LR
         H[Distributed Augmentation<br/>02_Augmentation.py]
         I[ViT Fine-Tuning<br/>03_hf_deep_learning.py]
         J[MLflow Tracking]
-        K[Inference Validation<br/>05_model_serving.py]
-        L[Softmax]
-        M[Anomaly Score]
+        K[Azure Databricks Model Serving]
+        L[REST Endpoint Invocation<br/>05_model_serving.py]
+        M[Softmax]
+        N[Anomaly Score]
     end
 
     A --> B --> C --> D --> E
     E --> F --> G --> H --> I
     I --> J
-    I --> K
-    K --> L --> M
+    I --> K --> L --> M --> N
 ```
 
 ---
 
 # 🧰 Technology Stack
 
-| Category            | Tools                             |
-| ------------------- | --------------------------------- |
-| Programming         | Python                            |
-| Deep Learning       | PyTorch, HuggingFace Transformers |
-| Model               | Vision Transformer (ViT)          |
-| Data Processing     | Apache Spark, pandas UDF          |
-| Cloud Storage       | Azure Data Lake                   |
-| Cloud Compute       | Azure Databricks                  |
-| Experiment Tracking | MLflow                            |
-| Deployment Logic    | REST Endpoint Validation          |
+| Category            | Tools                                          |
+| ------------------- | ---------------------------------------------- |
+| Programming         | Python                                         |
+| Deep Learning       | PyTorch, HuggingFace Transformers              |
+| Model               | Vision Transformer (ViT)                       |
+| Data Processing     | Apache Spark, pandas UDF                       |
+| Cloud Storage       | Azure Data Lake                                |
+| Cloud Compute       | Azure Databricks                               |
+| Experiment Tracking | MLflow                                         |
+| Deployment          | Azure Databricks Model Serving + REST Endpoint |
 
 ---
 
@@ -108,18 +108,39 @@ cv-anomaly-detection-vit/
 
 ---
 
+# 🔹 Synthetic Anomaly Design Strategy
+
+Unlike subtle noise injection, anomaly samples were intentionally designed to be visually distinguishable.
+
+The synthetic anomalies:
+
+* Use irregular polygon-shaped patches
+* Introduce strong salt-and-pepper contrast
+* Are clearly identifiable by human observation
+* Create structural deviations from normal samples
+
+The objective was not to simulate imperceptible perturbations, but to construct explicitly abnormal patterns to validate:
+
+* Binary classification stability
+* Clear decision boundary formation
+* Softmax-based anomaly scoring reliability
+
+This design ensures controlled learning behavior and stable deployment validation.
+
+---
+
 # 🔹 Local Preprocessing
 
 ## frames.py
 
-Extracts individual frames from a video source.
+Extracts individual frames from the raw video source.
 
 ## salt_pepper_noise.py
 
 Implements irregular polygon-based anomaly synthesis with:
 
 * Adjustable noise ratio
-* Salt vs pepper control
+* Salt vs pepper contrast control
 * Multi-patch random generation
 
 ## label.py
@@ -128,7 +149,7 @@ Creates structured labels for normal vs abnormal classes.
 
 ## llm.py
 
-Optional experimental LLM-assisted labeling logic.
+Optional experimental LLM-assisted labeling module.
 
 ---
 
@@ -151,7 +172,7 @@ Distributed augmentation via pandas UDF:
 * Flips
 * Rotations
 * Affine transforms
-* Polygon-based anomaly patches
+* Polygon-based synthetic anomalies
 
 ## 03_hf_deep_learning.py
 
@@ -171,20 +192,24 @@ Training:
 * MLflow tracking
 * Model artifact logging
 
+---
+
 ## 05_model_serving.py
 
-Deployment-oriented inference validation:
+Azure-based deployment validation:
 
-* REST endpoint invocation
-* Logits extraction
-* Softmax computation
-* Anomaly score calculation
+* Invoke Azure Databricks Model Serving endpoint
+* Receive raw logits
+* Apply softmax transformation
+* Compute anomaly score
 
-Anomaly Score:
+Anomaly Score definition:
 
 ```
 P(class = abnormal)
 ```
+
+This confirms consistent model behavior under managed serving conditions.
 
 ---
 
@@ -204,7 +229,7 @@ P(class = abnormal)
 * Maximum anomaly score < 0.01
 * Stable probability distribution
 
-The model consistently assigns low anomaly probabilities to normal images, indicating stable inference behavior under deployment-like conditions.
+The deployed model consistently assigns low anomaly probabilities to normal images, demonstrating stable inference behavior in Azure serving environment.
 
 ---
 
@@ -214,20 +239,19 @@ The model consistently assigns low anomaly probabilities to normal images, indic
 * No Databricks personal access tokens hardcoded
 * Authentication handled via environment variables or Databricks Secrets
 
-This repository follows secure credential management practices.
+This repository follows secure credential management practices aligned with cloud deployment standards.
 
 ---
 
-# 🚀 Deployment Compatibility
+# 🚀 Deployment
 
-The trained model is compatible with:
+The model is deployed using:
 
-* Databricks Model Serving
-* FastAPI REST API
-* MLflow model serving
-* Containerized deployment
+* MLflow model registration
+* Azure Databricks Model Serving
+* Managed REST endpoint invocation
 
-Inference logic included in this repository validates production readiness.
+No external API framework is used, as serving and inference are handled entirely within Azure Databricks environment.
 
 ---
 
@@ -236,9 +260,9 @@ Inference logic included in this repository validates production readiness.
 * Distributed image processing with Spark
 * Vectorized image transformation via pandas UDF
 * MLflow experiment lifecycle tracking
-* Cloud-native ML workflow
-* Secure secret management
-* Deployment-oriented validation
+* Azure-native model serving
+* REST-based inference validation
+* Secure cloud credential management
 
 ---
 
@@ -264,7 +288,7 @@ This project demonstrates:
 * End-to-end ML engineering capability
 * Cloud-based data processing
 * Experiment tracking and model lifecycle management
-* Deployment readiness
+* Managed cloud deployment experience
 * Secure and reproducible ML workflow design
 
 ---
